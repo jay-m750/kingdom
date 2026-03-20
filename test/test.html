@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QUnit 測試 — 高中物理電路分析工具</title>
+  <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.20.0.css"
+        integrity="sha384-Pcq9y+YtpJ/8U0Zgun8/BVpdasPbOmNxvrK+y4XbqnYqCyHfJ5fpyWZ7jrKmRRHI"
+        crossorigin="anonymous">
+  <!-- QUnit 必須在 module scripts 執行前載入（regular script 先於 deferred module） -->
+  <script src="https://code.jquery.com/qunit/qunit-2.20.0.js"
+          integrity="sha384-Pjw62mnlukIw/Pqj9DX0i3XdYQzk16QeakYz/Er1aC2kd6EZh0wiUCVHX8/OuC5Y"
+          crossorigin="anonymous"></script>
+  <!-- 延遲 QUnit autostart，等 ES module 測試註冊完成後再啟動 -->
+  <script>QUnit.config.autostart = false;</script>
+</head>
+<body>
+  <div id="qunit"></div>
+  <div id="qunit-fixture"></div>
+
+  <script type="module">
+    // ──────────────────────────────────────────────────
+    // 匯入受測模組（ES6 module）
+    // ──────────────────────────────────────────────────
+    import {
+      analyzeSeriesCircuit,
+      analyzeParallelCircuit,
+      analyzeMixedCircuit,
+      validateInput,
+    } from '../js/circuit-analyzer.js';
+
+    import { scenarios } from '../js/scenarios.js';
+    import { buildExportDocument } from '../js/app.js';
+
+    // ──────────────────────────────────────────────────
+    // 輔助函式
+    // ──────────────────────────────────────────────────
+    const EPSILON = 0.005; // 允許小數點後 2 位精度誤差
+
+    function approxEqual(assert, actual, expected, label) {
+      assert.ok(
+        Math.abs(actual - expected) < EPSILON,
+        `${label}: expected ${expected}, got ${actual}`
+      );
+    }
+
+    // ──────────────────────────────────────────────────
+    // Module 1: validateInput
+    // ──────────────────────────────────────────────────
+    QUnit.module('validateInput', () => {
+
+      QUnit.test('有效輸入應回傳 { valid: true }', (assert) => {
+        const result = validateInput(12, [4, 8]);
+        assert.deepEqual(result, { valid: true });
+      });
+
+      QUnit.test('電壓為 0 應回傳無效（US1-AC3）', (assert) => {
+        const result = validateInput(0, [4, 8]);
+        assert.strictEqual(result.valid, false);
+        assert.ok(result.message, '應有錯誤訊息');
+        assert.ok(result.message.includes('電壓'), '訊息應提及電壓');
+      });
+
+      QUnit.test('電壓為負數應回傳無效', (assert) => {
+        const result = validateInput(-5, [4]);
+        assert.strictEqual(result.valid, false);
+      });
+
+      QUnit.test('電阻值為 0 — 短路偵測（US1-AC3）', (assert) => {
+        const result = validateInput(12, [0, 8]);
+        assert.strictEqual(result.valid, false);
+        assert.ok(result.message.includes('短路'), '訊息應包含「短路」');
+      });
+
+      QUnit.test('電阻值為負數應回傳無效（US1-AC3）', (assert) => {
+        const result = validateInput(12, [-4]);
+        assert.strictEqual(result.valid, false);
+        assert.ok(result.message.includes('無效電阻'), '訊息應包含「無效電阻」');
+      });
+
+      QUnit.test('空陣列應回傳無效（US1-AC3）', (assert) => {
+        const result = validateInput(12, []);
+        assert.strictEqual(result.valid, false);
+        assert.ok(result.message.includes('至少'), '訊息應提示至少需一個電阻');
+      });
+
+      QUnit.test('電壓欄位空白（NaN）應回傳無效', (assert) => {
+        const result = validateInput(NaN, [4, 8]);
+        assert.strictEqual(result.valid, false);
+      });
+
+      QUnit.test('電阻欄位空白應回傳無效（US1-AC3）', (assert) => {
+        const result = validateInput(12, ['', 8]);
+        assert.strictEqual(result.valid, false);
+        assert.ok(result.message.includes('請輸入'), '訊息應提示輸入電阻');
+      });
+
+      QUnit.test('回傳訊息為繁體中文', (assert) => {
+        const result = validateInput(12, [0]);
+        assert.ok(/[\u4e00-\u9fff]/.test(result.message), '訊息應包含繁體中文字元');
+      });
+
+    });
+
+    // ──────────────────────────────────────────────────
+    // Module 2: analyzeSeriesCircuit
+    // ──────────────────────────────────────────────────
+    QUnit.module('analyzeSeriesCircuit', () => {
+
+      QUnit.test('US1-AC1: 12V, R1=4Ω, R2=8Ω → I=1A, V1=4V, V2=8V', (assert) => {
+        const result = analyzeSeriesCircuit(12, [4, 8]);
+        assert.strictEqual(result.topology, 'series');
+        approxEqual(assert, result.totalResistance, 12, 'totalResistance');
+        approxEqual(assert, result.totalCurrent, 1, 'totalCurrent');
+        approxEqual(assert, result.totalPower, 12, 'totalPower');
+        assert.strictEqual(result.componentResults.length, 2, '應有 2 個元件結果');
+        approxEqual(assert, result.componentResults[0].voltage, 4, 'R1 電壓');
+        approxEqual(assert, result.componentResults[1].voltage, 8, 'R2 電壓');
+        approxEqual(assert, result.componentResults[0].current, 1, 'R1 電流');
+        approxEqual(assert, result.componentResults[1].current, 1, 'R2 電流');
+      });
+
+      QUnit.test('單一電阻串聯：6V, R=6Ω → I=1A', (assert) => {
+        const result = analyzeSeriesCircuit(6, [6]);
+        approxEqual(assert, result.totalCurrent, 1, 'totalCurrent');
+        approxEqual(assert, result.totalResistance, 6, 'totalResistance');
+      });
+
+      QUnit.test('電阻為 0 應拋出短路錯誤', (assert) => {
+        assert.throws(
+          () => analyzeSeriesCircuit(12, [0, 8]),
+          /短路/,
+          '應拋出含「短路」的錯誤'
+        );
+      });
+
+      QUnit.test('電阻為負數應拋出錯誤', (assert) => {
+        assert.throws(
+          () => analyzeSeriesCircuit(12, [-4]),
+          /無效電阻/,
+          '應拋出含「無效電阻」的錯誤'
+        );
+      });
+
+      QUnit.test('空陣列應拋出錯誤', (assert) => {
+        assert.throws(
+          () => analyzeSeriesCircuit(12, []),
+          /至少/,
+          '應拋出提示至少需一個電阻的錯誤'
+        );
+      });
+
+      QUnit.test('componentResults 應有 label 欄位', (assert) => {
+        const result = analyzeSeriesCircuit(12, [4, 8]);
+        assert.strictEqual(result.componentResults[0].label, 'R1');
+        assert.strictEqual(result.componentResults[1].label, 'R2');
+      });
+
+      QUnit.test('結果應精確至小數點後 2 位', (assert) => {
+        const result = analyzeSeriesCircuit(10, [3, 7]);
+        assert.ok(
+          String(result.totalCurrent).match(/^\d+(\.\d{1,2})?$/),
+          '電流數值格式正確'
+        );
+      });
+
+    });
+
+    // ──────────────────────────────────────────────────
+    // Module 3: analyzeParallelCircuit
+    // ──────────────────────────────────────────────────
+    QUnit.module('analyzeParallelCircuit', () => {
+
+      QUnit.test('US1-AC2: 6V, R1=6Ω, R2=3Ω → I_total=3A, I1=1A, I2=2A, P=18W', (assert) => {
+        const result = analyzeParallelCircuit(6, [6, 3]);
+        assert.strictEqual(result.topology, 'parallel');
+        approxEqual(assert, result.totalCurrent, 3, 'totalCurrent');
+        approxEqual(assert, result.totalPower, 18, 'totalPower');
+        approxEqual(assert, result.componentResults[0].current, 1, 'I1=1A');
+        approxEqual(assert, result.componentResults[1].current, 2, 'I2=2A');
+        // 並聯各元件兩端電壓相等（等於電源電壓）
+        approxEqual(assert, result.componentResults[0].voltage, 6, 'V1=6V');
+        approxEqual(assert, result.componentResults[1].voltage, 6, 'V2=6V');
+      });
+
+      QUnit.test('並聯 3 個相等電阻：12V, 3×6Ω → R_total=2Ω', (assert) => {
+        const result = analyzeParallelCircuit(12, [6, 6, 6]);
+        approxEqual(assert, result.totalResistance, 2, 'totalResistance');
+        approxEqual(assert, result.totalCurrent, 6, 'totalCurrent');
+      });
+
+      QUnit.test('電阻為 0 應拋出短路錯誤', (assert) => {
+        assert.throws(() => analyzeParallelCircuit(6, [0, 3]), /短路/);
+      });
+
+      QUnit.test('空陣列應拋出錯誤', (assert) => {
+        assert.throws(() => analyzeParallelCircuit(6, []), /至少/);
+      });
+
+    });
+
+    // ──────────────────────────────────────────────────
+    // Module 4: analyzeMixedCircuit
+    // ──────────────────────────────────────────────────
+    QUnit.module('analyzeMixedCircuit', () => {
+
+      QUnit.test('基本混合電路：12V, 串聯 R1=4Ω + 並聯(R2=6Ω, R3=12Ω)', (assert) => {
+        // R_parallel = (6*12)/(6+12) = 4Ω
+        // R_total = 4 + 4 = 8Ω
+        // I_total = 12/8 = 1.5A
+        const groups = [
+          { type: 'series', resistors: [4] },
+          { type: 'parallel', resistors: [6, 12] },
+        ];
+        const result = analyzeMixedCircuit(12, groups);
+        assert.strictEqual(result.topology, 'mixed');
+        approxEqual(assert, result.totalResistance, 8, 'totalResistance');
+        approxEqual(assert, result.totalCurrent, 1.5, 'totalCurrent');
+        approxEqual(assert, result.totalPower, 18, 'totalPower');
+      });
+
+      QUnit.test('componentResults 應包含所有電阻', (assert) => {
+        const groups = [
+          { type: 'series', resistors: [4] },
+          { type: 'parallel', resistors: [6, 12] },
+        ];
+        const result = analyzeMixedCircuit(12, groups);
+        assert.strictEqual(result.componentResults.length, 3, '應有 3 個元件結果');
+      });
+
+      QUnit.test('電阻為 0 應拋出短路錯誤', (assert) => {
+        assert.throws(
+          () => analyzeMixedCircuit(12, [{ type: 'series', resistors: [0] }]),
+          /短路/
+        );
+      });
+
+      QUnit.test('空 groups 陣列應拋出錯誤', (assert) => {
+        assert.throws(() => analyzeMixedCircuit(12, []), /至少/);
+      });
+
+      QUnit.test('單一 series group', (assert) => {
+        const groups = [{ type: 'series', resistors: [3, 7] }];
+        const result = analyzeMixedCircuit(10, groups);
+        approxEqual(assert, result.totalResistance, 10, 'totalResistance');
+        approxEqual(assert, result.totalCurrent, 1, 'totalCurrent');
+      });
+
+    });
+
+    // ──────────────────────────────────────────────────
+    // Module 5: scenarios
+    // ──────────────────────────────────────────────────
+    QUnit.module('scenarios', () => {
+
+      QUnit.test('scenarios 應匯出一個陣列', (assert) => {
+        assert.ok(Array.isArray(scenarios), 'scenarios 應為陣列');
+      });
+
+      QUnit.test('scenarios 應恰好包含 3 個場景（US2）', (assert) => {
+        assert.strictEqual(scenarios.length, 3, '應有 3 個場景');
+      });
+
+      QUnit.test('三個場景 id 分別為 dc-motor、electromagnet、thermistor', (assert) => {
+        const ids = scenarios.map((s) => s.id);
+        assert.ok(ids.includes('dc-motor'), 'dc-motor 場景存在');
+        assert.ok(ids.includes('electromagnet'), 'electromagnet 場景存在');
+        assert.ok(ids.includes('thermistor'), 'thermistor 場景存在');
+      });
+
+      QUnit.test('每個場景均具備必要欄位', (assert) => {
+        const requiredFields = [
+          'id', 'name', 'description',
+          'defaultVoltage', 'defaultTopology', 'defaultResistors',
+          'resultInterpretation',
+        ];
+        scenarios.forEach((s) => {
+          requiredFields.forEach((field) => {
+            assert.ok(
+              s[field] !== undefined && s[field] !== null && s[field] !== '',
+              `場景 ${s.id} 應有欄位 ${field}`
+            );
+          });
+        });
+      });
+
+      QUnit.test('resultInterpretation 應為函式且呼叫後回傳非空字串', (assert) => {
+        // 使用 US1-AC1 的結果物件作為測試輸入
+        const mockResult = {
+          topology: 'series',
+          totalResistance: 12,
+          totalCurrent: 1,
+          totalPower: 12,
+          componentResults: [
+            { label: 'R1', voltage: 4, current: 1, power: 4 },
+            { label: 'R2', voltage: 8, current: 1, power: 8 },
+          ],
+        };
+        scenarios.forEach((s) => {
+          assert.strictEqual(typeof s.resultInterpretation, 'function', `${s.id} resultInterpretation 應為函式`);
+          const text = s.resultInterpretation(mockResult);
+          assert.strictEqual(typeof text, 'string', `${s.id} resultInterpretation 應回傳字串`);
+          assert.ok(text.length > 0, `${s.id} resultInterpretation 回傳值不得為空字串`);
+        });
+      });
+
+      QUnit.test('defaultResistors 應為非空數字陣列', (assert) => {
+        scenarios.forEach((s) => {
+          assert.ok(Array.isArray(s.defaultResistors), `${s.id} defaultResistors 應為陣列`);
+          assert.ok(s.defaultResistors.length > 0, `${s.id} defaultResistors 不得為空`);
+          s.defaultResistors.forEach((r) => {
+            assert.strictEqual(typeof r, 'number', `${s.id} 電阻值應為數字`);
+            assert.ok(r > 0, `${s.id} 電阻值應大於零`);
+          });
+        });
+      });
+
+      QUnit.test('defaultTopology 應為 series、parallel 或 mixed 其中之一', (assert) => {
+        const validTopologies = ['series', 'parallel', 'mixed'];
+        scenarios.forEach((s) => {
+          assert.ok(
+            validTopologies.includes(s.defaultTopology),
+            `${s.id} defaultTopology 值應合法`
+          );
+        });
+      });
+
+    });
+
+    // ──────────────────────────────────────────────────
+    // Module 6: buildExportDocument
+    // ──────────────────────────────────────────────────
+    QUnit.module('buildExportDocument', () => {
+
+      const mockCircuit = {
+        topology: 'series',
+        voltage: 12,
+        resistors: [4, 8],
+      };
+
+      const mockResult = {
+        topology: 'series',
+        totalResistance: 12,
+        totalCurrent: 1,
+        totalPower: 12,
+        componentResults: [
+          { label: 'R1', voltage: 4, current: 1, power: 4 },
+          { label: 'R2', voltage: 8, current: 1, power: 8 },
+        ],
+      };
+
+      const mockScenario = scenarios.find((s) => s.id === 'dc-motor');
+
+      QUnit.test('應回傳包含所有必要欄位的物件（US3）', (assert) => {
+        const doc = buildExportDocument(mockCircuit, mockResult, mockScenario);
+        const requiredFields = [
+          'title', 'circuitDescription', 'inputParameters',
+          'calculationSteps', 'results', 'scenarioContext',
+        ];
+        requiredFields.forEach((field) => {
+          assert.ok(doc[field] !== undefined, `應包含欄位 ${field}`);
+        });
+      });
+
+      QUnit.test('各欄位應為非空字串', (assert) => {
+        const doc = buildExportDocument(mockCircuit, mockResult, mockScenario);
+        const stringFields = ['title', 'circuitDescription', 'inputParameters', 'calculationSteps', 'results'];
+        stringFields.forEach((field) => {
+          assert.strictEqual(typeof doc[field], 'string', `${field} 應為字串`);
+          assert.ok(doc[field].length > 0, `${field} 不得為空字串`);
+        });
+      });
+
+      QUnit.test('title 應包含「報告」', (assert) => {
+        const doc = buildExportDocument(mockCircuit, mockResult, null);
+        assert.ok(doc.title.includes('報告'), 'title 應包含「報告」');
+      });
+
+      QUnit.test('無場景時 scenarioContext 為空字串', (assert) => {
+        const doc = buildExportDocument(mockCircuit, mockResult, null);
+        assert.strictEqual(doc.scenarioContext, '', '無場景時 scenarioContext 應為空字串');
+      });
+
+      QUnit.test('有場景時 scenarioContext 非空', (assert) => {
+        const doc = buildExportDocument(mockCircuit, mockResult, mockScenario);
+        assert.ok(doc.scenarioContext.length > 0, '有場景時 scenarioContext 應非空');
+      });
+
+      QUnit.test('並聯電路匯出文件', (assert) => {
+        const parallelCircuit = { topology: 'parallel', voltage: 6, resistors: [6, 3] };
+        const parallelResult = analyzeParallelCircuit(6, [6, 3]);
+        const doc = buildExportDocument(parallelCircuit, parallelResult, null);
+        assert.ok(doc.calculationSteps.includes('並聯'), 'calculationSteps 應提及並聯');
+      });
+
+    });
+
+    // 所有測試模組已註冊，啟動 QUnit
+    QUnit.start();
+
+  </script>
+
+</body>
+</html>
