@@ -1,0 +1,492 @@
+/* css/style.css — 高中物理電路分析工具 */
+
+/* ─────────────────────────────────────────────
+   CSS Reset & Base
+───────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', Arial, sans-serif;
+  background: #f4f6f9;
+  color: #1a1a2e;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* ─────────────────────────────────────────────
+   Layout
+───────────────────────────────────────────── */
+.container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 1.25rem 2rem;
+}
+
+/* ─────────────────────────────────────────────
+   Header
+───────────────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+  padding: 2rem 1.25rem 1.5rem;
+  text-align: center;
+}
+
+.site-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.site-subtitle {
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+
+/* ─────────────────────────────────────────────
+   Cards
+───────────────────────────────────────────── */
+.card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.card h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: #16213e;
+  border-bottom: 2px solid #e8ecf0;
+  padding-bottom: 0.5rem;
+}
+
+.card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+  color: #16213e;
+}
+
+.section-desc {
+  color: #666;
+  font-size: 0.92rem;
+  margin-bottom: 1rem;
+}
+
+/* ─────────────────────────────────────────────
+   Form Elements
+───────────────────────────────────────────── */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.unit {
+  font-weight: 400;
+  font-size: 0.85em;
+  color: #888;
+}
+
+input[type="number"],
+select {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: 1.5px solid #cdd3da;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+  color: #1a1a2e;
+  background: #fafbfc;
+  transition: border-color 0.2s;
+  appearance: auto;
+}
+
+input[type="number"]:focus,
+select:focus {
+  outline: none;
+  border-color: #4a90d9;
+  background: #fff;
+}
+
+input[type="number"]::placeholder {
+  color: #aaa;
+}
+
+/* ─────────────────────────────────────────────
+   Resistor Rows
+───────────────────────────────────────────── */
+#resistors-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.resistor-row {
+  display: grid;
+  grid-template-columns: 9rem 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.resistor-row label {
+  font-weight: 600;
+  font-size: 0.93rem;
+  margin-bottom: 0;
+  color: #444;
+}
+
+.resistor-row input[type="number"] {
+  width: 100%;
+}
+
+.hint {
+  font-size: 0.82rem;
+  color: #999;
+  margin-top: 0.3rem;
+}
+
+/* ─────────────────────────────────────────────
+   Buttons
+───────────────────────────────────────────── */
+.btn {
+  display: inline-block;
+  padding: 0.6rem 1.3rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.97rem;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  text-align: center;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+}
+
+.btn-secondary {
+  background: #e8ecf0;
+  color: #444;
+  font-size: 0.9rem;
+  padding: 0.45rem 1rem;
+}
+
+.btn-secondary:hover {
+  background: #d1d8e0;
+}
+
+.btn-remove {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: none;
+  border-radius: 5px;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.btn-remove:hover {
+  background: #fca5a5;
+}
+
+.btn-remove:disabled {
+  background: #f0f0f0;
+  color: #bbb;
+  cursor: not-allowed;
+}
+
+.btn-export {
+  background: #059669;
+  color: #fff;
+}
+
+.btn-export:hover {
+  background: #047857;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+/* ─────────────────────────────────────────────
+   Scenario Selector
+───────────────────────────────────────────── */
+.scenario-select-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.scenario-select-row label {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.scenario-select-row select {
+  flex: 1;
+  min-width: 200px;
+}
+
+/* ─────────────────────────────────────────────
+   Results Section
+───────────────────────────────────────────── */
+#results {
+  min-height: 0;
+}
+
+#results:empty {
+  display: none;
+}
+
+.topology-badge {
+  display: inline-block;
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-radius: 4px;
+  padding: 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.summary-card {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+  text-align: center;
+}
+
+.summary-label {
+  display: block;
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-bottom: 0.3rem;
+}
+
+.summary-value {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1e3a5f;
+}
+
+/* Component Table */
+.component-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+  font-size: 0.93rem;
+}
+
+.component-table th,
+.component-table td {
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem 0.75rem;
+  text-align: center;
+}
+
+.component-table th {
+  background: #f1f5f9;
+  font-weight: 700;
+  color: #334155;
+}
+
+.component-table tr:nth-child(even) td {
+  background: #fafafa;
+}
+
+/* Error Message */
+.error-message {
+  color: #b91c1c;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  padding: 0.65rem 1rem;
+  font-weight: 600;
+}
+
+/* ─────────────────────────────────────────────
+   Scenario Interpretation Card
+───────────────────────────────────────────── */
+.interpretation-card {
+  background: #f0fdf4;
+  border: 1.5px solid #bbf7d0;
+  white-space: pre-line;
+  font-size: 0.93rem;
+  line-height: 1.8;
+  color: #14532d;
+}
+
+/* ─────────────────────────────────────────────
+   Footer
+───────────────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  color: #999;
+  font-size: 0.85rem;
+}
+
+/* ─────────────────────────────────────────────
+   Mobile / Responsive (≤768px)
+───────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .site-header h1 {
+    font-size: 1.35rem;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .resistor-row {
+    grid-template-columns: 6rem 1fr auto;
+  }
+
+  .scenario-select-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .scenario-select-row select {
+    width: 100%;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .component-table {
+    font-size: 0.82rem;
+  }
+
+  .component-table th,
+  .component-table td {
+    padding: 0.4rem 0.5rem;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   @media print — 列印版面（匯出 PDF）
+───────────────────────────────────────────── */
+@media print {
+  /* 隱藏操作介面 */
+  .site-header,
+  .site-footer,
+  #scenarios,
+  #circuit-form,
+  #results,
+  #scenario-interpretation,
+  .no-print {
+    display: none !important;
+  }
+
+  /* 顯示列印專用區塊 */
+  .print-only {
+    display: block !important;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+    font-family: 'Times New Roman', '標楷體', serif;
+    font-size: 12pt;
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  #print-view {
+    margin: 0;
+    padding: 1.5cm 2cm;
+  }
+
+  #print-view h1 {
+    font-size: 18pt;
+    text-align: center;
+    border-bottom: 2px solid #000;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .print-section {
+    margin-bottom: 1.25rem;
+    page-break-inside: avoid;
+  }
+
+  .print-section h2 {
+    font-size: 13pt;
+    border-left: 4px solid #333;
+    padding-left: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .print-section p {
+    font-size: 11pt;
+    margin-top: 0.25rem;
+  }
+
+  a {
+    text-decoration: none;
+    color: #000;
+  }
+}
+
+/* Hidden by default — shown only in print context */
+.print-only {
+  display: none;
+}

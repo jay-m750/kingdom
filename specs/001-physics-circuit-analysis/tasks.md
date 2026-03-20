@@ -19,10 +19,10 @@
 
 **Purpose**: 建立專案目錄結構與骨架檔案
 
-- [ ] T001 Create project directory structure: `css/`, `js/`, `test/` at repository root
-- [ ] T002 [P] Create `index.html` with HTML5 boilerplate, `<script type="module">` imports for `js/app.js`, `<link>` to `css/style.css`, and 繁體中文 `<title>` and `<meta charset>`
-- [ ] T003 [P] Create `css/style.css` with base layout skeleton (body, container, section resets)
-- [ ] T004 Record baseline git status: execute `git status --short --branch`
+- [x] T001 Create project directory structure: `css/`, `js/`, `test/` at repository root
+- [x] T002 [P] Create `index.html` with HTML5 boilerplate, `<script type="module">` imports for `js/app.js`, `<link>` to `css/style.css`, and 繁體中文 `<title>` and `<meta charset>`
+- [x] T003 [P] Create `css/style.css` with base layout skeleton (body, container, section resets)
+- [x] T004 Record baseline git status: execute `git status --short --branch`
 
 ---
 
@@ -32,10 +32,10 @@
 
 **⚠️ CRITICAL**: 任何使用者故事的實作均不得在本階段完成前開始
 
-- [ ] T005 Create `test/test.html` with QUnit 2.20.0 CDN (`<script src="https://code.jquery.com/qunit/qunit-2.20.0.js">`), QUnit CSS, and ES6 module `<script type="module">` placeholder for test suites
-- [ ] T006 Create `js/circuit-analyzer.js` as ES6 module with empty exported stubs: `analyzeSeriesCircuit`, `analyzeParallelCircuit`, `analyzeMixedCircuit`, `validateInput`
-- [ ] T007 [P] Create `js/scenarios.js` as ES6 module with empty exported array stub: `export const scenarios = []`
-- [ ] T008 [P] Create `js/app.js` as ES6 module with `import` stubs for `circuit-analyzer.js` and `scenarios.js`, and a bare `DOMContentLoaded` listener
+- [x] T005 Create `test/test.html` with QUnit 2.20.0 CDN (`<script src="https://code.jquery.com/qunit/qunit-2.20.0.js">`), QUnit CSS, and ES6 module `<script type="module">` placeholder for test suites
+- [x] T006 Create `js/circuit-analyzer.js` as ES6 module with empty exported stubs: `analyzeSeriesCircuit`, `analyzeParallelCircuit`, `analyzeMixedCircuit`, `validateInput`
+- [x] T007 [P] Create `js/scenarios.js` as ES6 module with empty exported array stub: `export const scenarios = []`
+- [x] T008 [P] Create `js/app.js` as ES6 module with `import` stubs for `circuit-analyzer.js` and `scenarios.js`, and a bare `DOMContentLoaded` listener
 
 **Checkpoint**: 骨架完成——各使用者故事的實作可並行開始
 
@@ -51,23 +51,23 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Add QUnit test module `analyzeSeriesCircuit` to `test/test.html`：覆蓋 US1-AC1（12V, R1=4Ω, R2=8Ω → I=1A, V1=4V, V2=8V）及錯誤輸入（電阻為 0、負數、空陣列）
-- [ ] T010 [P] [US1] Add QUnit test module `analyzeParallelCircuit` to `test/test.html`：覆蓋 US1-AC2（6V, R1=6Ω, R2=3Ω → I_total=3A, I1=1A, I2=2A, P=18W）
-- [ ] T011 [P] [US1] Add QUnit test module `analyzeMixedCircuit` to `test/test.html`：覆蓋三電阻混合電路（一並聯段＋一串聯段），驗證 totalResistance、totalCurrent、componentResults
-- [ ] T012 [P] [US1] Add QUnit test module `validateInput` to `test/test.html`：覆蓋 US1-AC3（電阻=0 短路、負電阻、空白欄位、電壓≤0）回傳繁體中文錯誤訊息
-- [ ] T013 [US1] Open `test/test.html` in browser and verify ALL US1 tests FAIL（Red state）before implementation
+- [x] T009 [P] [US1] Add QUnit test module `analyzeSeriesCircuit` to `test/test.html`：覆蓋 US1-AC1（12V, R1=4Ω, R2=8Ω → I=1A, V1=4V, V2=8V）及錯誤輸入（電阻為 0、負數、空陣列）
+- [x] T010 [P] [US1] Add QUnit test module `analyzeParallelCircuit` to `test/test.html`：覆蓋 US1-AC2（6V, R1=6Ω, R2=3Ω → I_total=3A, I1=1A, I2=2A, P=18W）
+- [x] T011 [P] [US1] Add QUnit test module `analyzeMixedCircuit` to `test/test.html`：覆蓋三電阻混合電路（一並聯段＋一串聯段），驗證 totalResistance、totalCurrent、componentResults
+- [x] T012 [P] [US1] Add QUnit test module `validateInput` to `test/test.html`：覆蓋 US1-AC3（電阻=0 短路、負電阻、空白欄位、電壓≤0）回傳繁體中文錯誤訊息
+- [x] T013 [US1] Open `test/test.html` in browser and verify ALL US1 tests FAIL（Red state）before implementation
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement `validateInput(voltage, resistors)` in `js/circuit-analyzer.js`：依 data-model.md 驗證規則彙整，回傳 `{ valid, message }` 物件（繁體中文訊息）
-- [ ] T015 [US1] Implement `analyzeSeriesCircuit(voltage, resistors)` in `js/circuit-analyzer.js`：使用 `R_total=ΣR_i`、`I=V/R_total`、`V_i=I×R_i`、`P_i=I²×R_i`，結果精確至小數點後 2 位（`Math.round(x*100)/100`）
-- [ ] T016 [US1] Implement `analyzeParallelCircuit(voltage, resistors)` in `js/circuit-analyzer.js`：使用 `1/R_total=Σ(1/R_i)`、`I_i=V/R_i`、`P_i=V²/R_i`，結果精確至小數點後 2 位
-- [ ] T017 [US1] Implement `analyzeMixedCircuit(voltage, groups)` in `js/circuit-analyzer.js`：先化簡 `type='parallel'` 群組為等效電阻，再按串聯計算，對應 ui-contract.md § 1.3
-- [ ] T018 [P] [US1] Add circuit input form to `index.html`：包含 `<select id="topology">`（串聯/並聯/混合）、`<input id="voltage" type="number">`、動態電阻輸入群（`.resistor-input`）、「新增電阻」與「分析電路」按鈕（`<button id="analyze">`），以及結果顯示區（`<section id="results">`）
-- [ ] T019 [P] [US1] Style circuit input form and results section in `css/style.css`：表單版面、數字欄位標籤（單位說明 V/Ω/A/W）、錯誤訊息樣式（`.error-message`）、結果表格樣式
-- [ ] T020 [US1] Bind analyze button click handler in `js/app.js`：收集表單數值、呼叫對應 `analyze*Circuit()`、將 `AnalysisResult` 渲染至 `<section id="results">` 結果表格（totalResistance、totalCurrent、totalPower、componentResults）
-- [ ] T021 [US1] Implement dynamic resistor add/remove and inline validation in `js/app.js`：「新增電阻」追加 `.resistor-input` 欄（上限 10）、「移除」按鈕（下限 1）、呼叫 `validateInput()` 並在欄位下方顯示繁體中文錯誤訊息
-- [ ] T022 [US1] Open `test/test.html` in browser and verify ALL US1 tests PASS（Green state）
+- [x] T014 [US1] Implement `validateInput(voltage, resistors)` in `js/circuit-analyzer.js`：依 data-model.md 驗證規則彙整，回傳 `{ valid, message }` 物件（繁體中文訊息）
+- [x] T015 [US1] Implement `analyzeSeriesCircuit(voltage, resistors)` in `js/circuit-analyzer.js`：使用 `R_total=ΣR_i`、`I=V/R_total`、`V_i=I×R_i`、`P_i=I²×R_i`，結果精確至小數點後 2 位（`Math.round(x*100)/100`）
+- [x] T016 [US1] Implement `analyzeParallelCircuit(voltage, resistors)` in `js/circuit-analyzer.js`：使用 `1/R_total=Σ(1/R_i)`、`I_i=V/R_i`、`P_i=V²/R_i`，結果精確至小數點後 2 位
+- [x] T017 [US1] Implement `analyzeMixedCircuit(voltage, groups)` in `js/circuit-analyzer.js`：先化簡 `type='parallel'` 群組為等效電阻，再按串聯計算，對應 ui-contract.md § 1.3
+- [x] T018 [P] [US1] Add circuit input form to `index.html`：包含 `<select id="topology">`（串聯/並聯/混合）、`<input id="voltage" type="number">`、動態電阻輸入群（`.resistor-input`）、「新增電阻」與「分析電路」按鈕（`<button id="analyze">`），以及結果顯示區（`<section id="results">`）
+- [x] T019 [P] [US1] Style circuit input form and results section in `css/style.css`：表單版面、數字欄位標籤（單位說明 V/Ω/A/W）、錯誤訊息樣式（`.error-message`）、結果表格樣式
+- [x] T020 [US1] Bind analyze button click handler in `js/app.js`：收集表單數值、呼叫對應 `analyze*Circuit()`、將 `AnalysisResult` 渲染至 `<section id="results">` 結果表格（totalResistance、totalCurrent、totalPower、componentResults）
+- [x] T021 [US1] Implement dynamic resistor add/remove and inline validation in `js/app.js`：「新增電阻」追加 `.resistor-input` 欄（上限 10）、「移除」按鈕（下限 1）、呼叫 `validateInput()` 並在欄位下方顯示繁體中文錯誤訊息
+- [x] T022 [US1] Open `test/test.html` in browser and verify ALL US1 tests PASS（Green state）
 
 **Checkpoint**: User Story 1 應可獨立運作——開啟 `index.html`，輸入 US1-AC1 串聯電路，確認結果符合規格
 
@@ -83,17 +83,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T023 [P] [US2] Add QUnit test module `scenarios` to `test/test.html`：驗證 `scenarios.js` 匯出陣列恰好包含 3 個場景（`dc-motor`、`electromagnet`、`thermistor`）；各場景具有 `id`、`name`、`description`、`defaultVoltage`、`defaultTopology`、`defaultResistors`、`resultInterpretation` 必要欄位；`resultInterpretation` 為函式且呼叫後回傳非空字串
-- [ ] T024 [US2] Open `test/test.html` in browser and verify US2 tests FAIL（Red state）before implementation
+- [x] T023 [P] [US2] Add QUnit test module `scenarios` to `test/test.html`：驗證 `scenarios.js` 匯出陣列恰好包含 3 個場景（`dc-motor`、`electromagnet`、`thermistor`）；各場景具有 `id`、`name`、`description`、`defaultVoltage`、`defaultTopology`、`defaultResistors`、`resultInterpretation` 必要欄位；`resultInterpretation` 為函式且呼叫後回傳非空字串
+- [x] T024 [US2] Open `test/test.html` in browser and verify US2 tests FAIL（Red state）before implementation
 
 ### Implementation for User Story 2
 
-- [ ] T025 [US2] Implement 3 `ApplicationScenario` objects in `js/scenarios.js`：`dc-motor`（24V 串聯，電樞電阻 2Ω，說明起動電流與轉矩）、`electromagnet`（12V 串聯，線圈電阻 3Ω，說明磁力強度）、`thermistor`（5V 串聯，定值電阻 10kΩ＋熱敏電阻 10kΩ，說明分壓測溫原理），`resultInterpretation` 為接受 `AnalysisResult` 並回傳繁體中文詮釋字串的函式
-- [ ] T026 [P] [US2] Add scenario selector section to `index.html`：包含 `<section id="scenarios">` 標題、三個場景卡片或 `<select id="scenario-select">`（含場景說明）、一個「套用場景」或「選取即套用」的互動方式
-- [ ] T027 [P] [US2] Style scenario section in `css/style.css`：場景選擇器樣式、場景說明文字排版
-- [ ] T028 [US2] Bind scenario selection in `js/app.js`：使用者選擇場景時，自動將 `defaultVoltage`、`defaultTopology`、`defaultResistors` 填入電路輸入表單欄位
-- [ ] T029 [US2] Display `resultInterpretation` after analysis in `js/app.js`：分析完成後呼叫目前選定場景的 `resultInterpretation(result)`，將回傳字串顯示於結果區塊的 `<div id="scenario-interpretation">` 內
-- [ ] T030 [US2] Open `test/test.html` in browser and verify ALL US2 tests PASS（Green state）
+- [x] T025 [US2] Implement 3 `ApplicationScenario` objects in `js/scenarios.js`：`dc-motor`（24V 串聯，電樞電阻 2Ω，說明起動電流與轉矩）、`electromagnet`（12V 串聯，線圈電阻 3Ω，說明磁力強度）、`thermistor`（5V 串聯，定值電阻 10kΩ＋熱敏電阻 10kΩ，說明分壓測溫原理），`resultInterpretation` 為接受 `AnalysisResult` 並回傳繁體中文詮釋字串的函式
+- [x] T026 [P] [US2] Add scenario selector section to `index.html`：包含 `<section id="scenarios">` 標題、三個場景卡片或 `<select id="scenario-select">`（含場景說明）、一個「套用場景」或「選取即套用」的互動方式
+- [x] T027 [P] [US2] Style scenario section in `css/style.css`：場景選擇器樣式、場景說明文字排版
+- [x] T028 [US2] Bind scenario selection in `js/app.js`：使用者選擇場景時，自動將 `defaultVoltage`、`defaultTopology`、`defaultResistors` 填入電路輸入表單欄位
+- [x] T029 [US2] Display `resultInterpretation` after analysis in `js/app.js`：分析完成後呼叫目前選定場景的 `resultInterpretation(result)`，將回傳字串顯示於結果區塊的 `<div id="scenario-interpretation">` 內
+- [x] T030 [US2] Open `test/test.html` in browser and verify ALL US2 tests PASS（Green state）
 
 **Checkpoint**: User Stories 1 AND 2 應可獨立運作——選取直流電動機場景，分析後確認顯示轉矩說明文字
 
@@ -109,15 +109,15 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T031 [P] [US3] Add QUnit test module `buildExportDocument` to `test/test.html`：驗證給定一個 `AnalysisResult` 與場景，函式回傳包含 `title`、`circuitDescription`、`inputParameters`、`calculationSteps`、`results`、`scenarioContext` 欄位的物件，各欄位非空字串（對應 data-model.md ExportDocument 結構）
-- [ ] T032 [US3] Open `test/test.html` in browser and verify US3 tests FAIL（Red state）before implementation
+- [x] T031 [P] [US3] Add QUnit test module `buildExportDocument` to `test/test.html`：驗證給定一個 `AnalysisResult` 與場景，函式回傳包含 `title`、`circuitDescription`、`inputParameters`、`calculationSteps`、`results`、`scenarioContext` 欄位的物件，各欄位非空字串（對應 data-model.md ExportDocument 結構）
+- [x] T032 [US3] Open `test/test.html` in browser and verify US3 tests FAIL（Red state）before implementation
 
 ### Implementation for User Story 3
 
-- [ ] T033 [P] [US3] Add export button and print-view section to `index.html`：`<button id="export">匯出分析報告</button>`（預設隱藏，分析完成後顯示）、`<section id="print-view" class="print-only">` 含 `ExportDocument` 各欄位的 HTML 結構（標題、電路描述段落、輸入參數表、計算步驟清單、結果表格、場景說明段落）
-- [ ] T034 [P] [US3] Add `@media print` rules to `css/style.css`：隱藏操作介面（表單、按鈕、場景選擇器），顯示 `.print-only` 區塊，設定字型、間距與分頁，確保列印版面適合附入備審資料（對應 SC-005）
-- [ ] T035 [US3] Implement `buildExportDocument(circuit, result, scenario)` and wire export button in `js/app.js`：函式依 data-model.md ExportDocument 結構組裝物件；export 按鈕點擊時呼叫函式填入 `#print-view` 各欄位 DOM，再呼叫 `window.print()`
-- [ ] T036 [US3] Open `test/test.html` in browser and verify ALL US3 tests PASS（Green state）
+- [x] T033 [P] [US3] Add export button and print-view section to `index.html`：`<button id="export">匯出分析報告</button>`（預設隱藏，分析完成後顯示）、`<section id="print-view" class="print-only">` 含 `ExportDocument` 各欄位的 HTML 結構（標題、電路描述段落、輸入參數表、計算步驟清單、結果表格、場景說明段落）
+- [x] T034 [P] [US3] Add `@media print` rules to `css/style.css`：隱藏操作介面（表單、按鈕、場景選擇器），顯示 `.print-only` 區塊，設定字型、間距與分頁，確保列印版面適合附入備審資料（對應 SC-005）
+- [x] T035 [US3] Implement `buildExportDocument(circuit, result, scenario)` and wire export button in `js/app.js`：函式依 data-model.md ExportDocument 結構組裝物件；export 按鈕點擊時呼叫函式填入 `#print-view` 各欄位 DOM，再呼叫 `window.print()`
+- [x] T036 [US3] Open `test/test.html` in browser and verify ALL US3 tests PASS（Green state）
 
 **Checkpoint**: 三個使用者故事應全部可獨立運作——完整執行 quickstart.md「匯出分析報告」流程
 
@@ -127,10 +127,10 @@
 
 **Purpose**: 跨使用者故事的 UI 細節、無障礙與整體品質
 
-- [ ] T037 [P] Review and finalize all 繁體中文 UI text (labels, placeholders, aria-labels, button text) in `index.html`，確認符合 FR-007（所有介面文字使用繁體中文）
-- [ ] T038 [P] Add mobile/responsive styles in `css/style.css`：`@media (max-width: 768px)` 斷點調整表單與結果區塊版面，確保行動瀏覽器可用（對應 SC-001）
-- [ ] T039 Run quickstart.md manual validation：執行三個使用者故事的所有 Acceptance Scenarios，確認輸出符合規格；記錄任何不符合之處並修正
-- [ ] T040 Record final git status: execute `git status --short --branch`
+- [x] T037 [P] Review and finalize all 繁體中文 UI text (labels, placeholders, aria-labels, button text) in `index.html`，確認符合 FR-007（所有介面文字使用繁體中文）
+- [x] T038 [P] Add mobile/responsive styles in `css/style.css`：`@media (max-width: 768px)` 斷點調整表單與結果區塊版面，確保行動瀏覽器可用（對應 SC-001）
+- [x] T039 Run quickstart.md manual validation：執行三個使用者故事的所有 Acceptance Scenarios，確認輸出符合規格；記錄任何不符合之處並修正
+- [x] T040 Record final git status: execute `git status --short --branch`
 
 ---
 
